@@ -40,6 +40,17 @@
             android:layout_marginStart="1dp"
             android:textColor="#fff"
             android:background="#666"
+            android:id="@+id/bt_clear"
+            android:textSize="15sp"
+            android:text="清空"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp" />
+
+        <Button
+            android:layout_marginStart="1dp"
+            android:textColor="#fff"
+            android:background="#666"
             android:id="@+id/bt_record"
             android:textSize="15sp"
             android:text="录制模式"
@@ -63,7 +74,7 @@
     <TextView
         android:layout_marginTop="10dp"
         android:textSize="18sp"
-        android:text="触控点列表"
+        android:text="触控点列表（选择你要自动点击的条目）"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

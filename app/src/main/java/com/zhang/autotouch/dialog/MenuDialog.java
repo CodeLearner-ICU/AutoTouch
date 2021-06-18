@@ -22,6 +22,7 @@ import com.zhang.autotouch.utils.GsonUtils;
 import com.zhang.autotouch.utils.SpUtils;
 import com.zhang.autotouch.utils.ToastUtil;
 
+import java.util.Collections;
 import java.util.List;
 
 public class MenuDialog extends BaseServiceDialog implements View.OnClickListener {
@@ -58,6 +59,7 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
         setCanceledOnTouchOutside(true);
         findViewById(R.id.bt_exit).setOnClickListener(this);
         findViewById(R.id.bt_add).setOnClickListener(this);
+        findViewById(R.id.bt_clear).setOnClickListener(this);
         findViewById(R.id.bt_record).setOnClickListener(this);
         btStop = findViewById(R.id.bt_stop);
         btStop.setOnClickListener(this);
@@ -92,6 +94,7 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
         TouchEvent.postPauseAction();
         if (touchPointAdapter != null) {
             List<TouchPoint> touchPoints = SpUtils.getTouchPoints(getContext());
+            Collections.reverse(touchPoints);
             Log.d("啊实打实", GsonUtils.beanToJson(touchPoints));
             touchPointAdapter.setTouchPointList(touchPoints);
         }
@@ -128,6 +131,14 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
                         recordDialog.show();
                     }
                 }
+                break;
+            case R.id.bt_clear:
+                onClick(btStop);
+                SpUtils.clear(getContext());
+                ToastUtil.show("已清空");
+
+                DialogUtils.dismiss(addPointDialog);
+                dismiss();
                 break;
             case R.id.bt_stop:
                 btStop.setVisibility(View.GONE);

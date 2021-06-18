@@ -16,6 +16,10 @@ import com.zhang.autotouch.bean.TouchPoint;
 import com.zhang.autotouch.utils.SpUtils;
 import com.zhang.autotouch.utils.ToastUtil;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 
 public class AddPointDialog extends BaseServiceDialog implements View.OnClickListener {
 
@@ -48,7 +52,10 @@ public class AddPointDialog extends BaseServiceDialog implements View.OnClickLis
     @Override
     protected void onInited() {
         etName = findViewById(R.id.et_name);
+        SimpleDateFormat f = new SimpleDateFormat( "yyyy年MM月dd日HH点mm分ss秒", Locale.getDefault());
+        etName.setText(f.format(new Date()));
         etTime = findViewById(R.id.et_time);
+        etTime.setText("1");
         groupInput = findViewById(R.id.gl_input);
         tvHint = findViewById(R.id.tv_hint);
         findViewById(R.id.bt_commit).setOnClickListener(this);

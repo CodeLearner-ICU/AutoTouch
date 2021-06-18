@@ -28,6 +28,7 @@ import com.zhang.autotouch.utils.DensityUtil;
 import com.zhang.autotouch.utils.WindowUtils;
 
 import java.text.DecimalFormat;
+import java.util.Random;
 
 /**
  * 无障碍服务-自动点击
@@ -92,6 +93,7 @@ public class AutoTouchService extends AccessibilityService {
         if (autoTouchPoint != null) {
             handler.postDelayed(autoTouchRunnable, getDelayTime());
             showTouchView();
+            Log.e("自动点击" ,"自动点击");
         }
     }
 
@@ -100,7 +102,8 @@ public class AutoTouchService extends AccessibilityService {
         public void run() {
             Log.d(TAG, "onAutoClick: " + "x=" + autoTouchPoint.getX() + " y=" + autoTouchPoint.getY());
             Path path = new Path();
-            path.moveTo(autoTouchPoint.getX(), autoTouchPoint.getY());
+            float rand = new Random().nextFloat();
+            path.moveTo(autoTouchPoint.getX() + rand, autoTouchPoint.getY() + rand);
             GestureDescription.Builder builder = new GestureDescription.Builder();
             GestureDescription gestureDescription = builder.addStroke(
                     new GestureDescription.StrokeDescription(path, 0, 100))
@@ -125,7 +128,9 @@ public class AutoTouchService extends AccessibilityService {
     private long getDelayTime() {
 //        int random = (int) (Math.random() * (30 - 1) + 1);
 //        return autoTouchEvent.getDelay() * 1000L + random;
-        return autoTouchPoint.getDelay() * 1000L;
+        float f = new Random().nextFloat();
+        long current = (long) (500 + f * 500L);
+        return autoTouchPoint.getDelay() * current;
     }
 
     @Override
@@ -173,7 +178,7 @@ public class AutoTouchService extends AccessibilityService {
                             float offset = 0.1f;
                             tvTouchPoint.setText(floatDf.format(countDownTime));
                             countDownTime -= offset;
-                            handler.postDelayed(touchViewRunnable, (long) (1000L * offset));
+                            handler.postDelayed(touchViewRunnable, (long) (500L * offset));
                         } else {
                             removeTouchView();
                         }
