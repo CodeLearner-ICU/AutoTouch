@@ -116,8 +116,9 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
                 dismiss();
                 break;
             case R.id.bt_record:
-                dismiss();
                 ToastUtil.show("有BUG暂不支持");
+                dismiss();
+
                 /*
                 if (listener != null) {
                     listener.onFloatWindowAttachChange(false);
@@ -153,6 +154,8 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
                 if (listener != null) {
                     listener.onExitService();
                 }
+                break;
+            default:
                 break;
 
         }
