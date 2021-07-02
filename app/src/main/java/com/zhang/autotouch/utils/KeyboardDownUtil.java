@@ -22,7 +22,11 @@ public class KeyboardDownUtil {
 
     //必须运行在子线程
     private static void sendKeyDownUpSync(int key) {
-        Instrumentation inst = new Instrumentation();
-        inst.sendKeyDownUpSync(key);
+        try {
+            Instrumentation inst = new Instrumentation();
+            inst.sendKeyDownUpSync(key);
+        }catch (java.lang.SecurityException e) {
+            e.printStackTrace();
+        }
     }
 }

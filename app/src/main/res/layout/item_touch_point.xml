@@ -11,10 +11,13 @@
     android:background="#fff">
 
     <TextView
+        android:gravity="center_vertical"
+        android:drawableLeft="@android:drawable/ic_media_play"
         android:textColor="#666"
         android:id="@+id/tv_name"
         tools:text="麻辣鸡"
         android:textSize="15sp"
+        android:ellipsize="middle"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="wrap_content" />

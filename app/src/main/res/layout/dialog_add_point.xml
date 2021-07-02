@@ -14,7 +14,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:alpha="0.6"
-        android:text="点击屏幕任意位置记录"
+        android:gravity="center"
+        android:text="点击屏幕任一位置（连续点击位置）"
         android:textColor="#fff"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -73,7 +74,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp"
+        android:layout_margin="10dp"
         app:layout_constraintBottom_toTopOf="@id/et_text"
         app:layout_constraintEnd_toEndOf="@id/et_text"
         app:layout_constraintStart_toStartOf="@id/et_text"
@@ -93,7 +94,7 @@
             android:id="@+id/radiobutton_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="评论模式" />
+            android:text="评论模式(仅淘宝)" />
     </RadioGroup>
 
     <EditText
@@ -101,7 +102,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:hint="名称"
+        android:hint="评论内容"
         android:textSize="20sp"
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@id/bt_commit"

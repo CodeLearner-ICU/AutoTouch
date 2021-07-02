@@ -37,6 +37,7 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
 
     public MenuDialog(@NonNull Context context) {
         super(context);
+        ToastUtil.init(context);
     }
 
     @Override
@@ -91,7 +92,7 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
         super.onStart();
         Log.d("啊实打实", "onStart");
         //如果正在触控，则暂停
-        TouchEvent.postPauseAction();
+        onClick(btStop);
         if (touchPointAdapter != null) {
             List<TouchPoint> touchPoints = SpUtils.getTouchPoints(getContext());
             Collections.reverse(touchPoints);
@@ -118,23 +119,6 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
             case R.id.bt_record:
                 ToastUtil.show("有BUG暂不支持");
                 dismiss();
-
-                /*
-                if (listener != null) {
-                    listener.onFloatWindowAttachChange(false);
-                    if (recordDialog ==null) {
-                        recordDialog = new RecordDialog(getContext());
-                        recordDialog.setOnDismissListener(new OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                listener.onFloatWindowAttachChange(true);
-                                MenuDialog.this.show();
-                            }
-                        });
-                        recordDialog.show();
-                    }
-                }
-                */
                 break;
             case R.id.bt_clear:
                 onClick(btStop);

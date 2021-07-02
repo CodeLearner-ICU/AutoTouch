@@ -1,6 +1,7 @@
 package com.zhang.autotouch.adapter;
 
 import android.annotation.SuppressLint;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,11 @@ public class TouchPointAdapter extends RecyclerView.Adapter<TouchPointAdapter.To
     public void onBindViewHolder(@NonNull TouchPointHolder holder, int position) {
         holder.itemView.setTag(position);
         TouchPoint touchPoint = getItem(position);
-        holder.tvName.setText(touchPoint.getName());
+        if (TextUtils.isEmpty(touchPoint.getText())) {
+            holder.tvName.setText("点赞:" + touchPoint.getName());
+        }else {
+            holder.tvName.setText("评论:" + touchPoint.getName());
+        }
         holder.tvOffset.setText("间隔(" + touchPoint.getDelay() + "s)");
 //        holder.btStop.setVisibility(touchPosition == position ? View.VISIBLE : View.INVISIBLE);
     }
