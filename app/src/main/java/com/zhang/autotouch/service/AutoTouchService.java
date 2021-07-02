@@ -4,19 +4,19 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
 import android.annotation.SuppressLint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.TextView;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import androidx.annotation.RequiresApi;
 
@@ -24,20 +24,32 @@ import com.zhang.autotouch.R;
 import com.zhang.autotouch.TouchEventManager;
 import com.zhang.autotouch.bean.TouchEvent;
 import com.zhang.autotouch.bean.TouchPoint;
+import com.zhang.autotouch.utils.AccessibilityNodeInfoUtil;
+import com.zhang.autotouch.utils.CopyPasteUtil;
 import com.zhang.autotouch.utils.DensityUtil;
+import com.zhang.autotouch.utils.KeyboardDownUtil;
+import com.zhang.autotouch.utils.LoopArrayList;
 import com.zhang.autotouch.utils.WindowUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Random;
 
 /**
  * 无障碍服务-自动点击
+ *
  * @date 2019/9/6 16:23
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class AutoTouchService extends AccessibilityService {
 
     private final String TAG = "AutoTouchService+++";
+    private final List<TouchPoint> autoTouchPointList = new LoopArrayList<>();
+    private final DecimalFormat floatDf = new DecimalFormat("#0.0");
     //自动点击事件
     private TouchPoint autoTouchPoint;
     @SuppressLint("HandlerLeak")
@@ -46,9 +58,36 @@ public class AutoTouchService extends AccessibilityService {
     private TextView tvTouchPoint;
     //倒计时
     private float countDownTime;
-    private DecimalFormat floatDf = new DecimalFormat("#0.0");
     //修改点击文本的倒计时
     private Runnable touchViewRunnable;
+    private final Runnable autoTouchRunnable = new Runnable() {
+        @Override
+        public void run() {
+            keyDownMethod(autoTouchPoint);
+
+            if (!TextUtils.isEmpty(autoTouchPoint.getText())) {
+                AccessibilityNodeInfo nodeInfo
+                        = AccessibilityNodeInfoUtil.getFocusAccessibilityNodeInfoButton(AutoTouchService.this, "发送");
+                if (nodeInfo != null) {
+                    CopyPasteUtil.pasteTextOnFocus(
+                            AutoTouchService.this
+                            , null
+                            , autoTouchPoint.getText() == null ? "赞👍" : autoTouchPoint.getText()
+                    );
+                    Rect rect = new Rect();
+                    nodeInfo.getBoundsInScreen(rect);
+                    Log.d(TAG, "forceClick: " + rect.left + " " + rect.top + " " + rect.right + " " + rect.bottom);
+                    int x = (rect.left + rect.right) / 2;
+                    int y = (rect.top + rect.bottom) / 2;
+                    keyDownMethod(new TouchPoint("发送", x, y, autoTouchPoint.getDelay()));
+                } else {
+                    KeyboardDownUtil.keyDown(KeyEvent.KEYCODE_ENTER);
+                }
+            }
+
+            onAutoClick();
+        }
+    };
 
     @Override
     protected void onServiceConnected() {
@@ -66,6 +105,7 @@ public class AutoTouchService extends AccessibilityService {
         switch (event.getAction()) {
             case TouchEvent.ACTION_START:
                 autoTouchPoint = event.getTouchPoint();
+                autoTouchPointList.add(autoTouchPoint);
                 onAutoClick();
                 break;
             case TouchEvent.ACTION_CONTINUE:
@@ -93,37 +133,33 @@ public class AutoTouchService extends AccessibilityService {
         if (autoTouchPoint != null) {
             handler.postDelayed(autoTouchRunnable, getDelayTime());
             showTouchView();
-            Log.e("自动点击" ,"自动点击");
+            Log.e("自动点击", "自动点击");
         }
     }
 
-    private Runnable autoTouchRunnable = new Runnable() {
-        @Override
-        public void run() {
-            Log.d(TAG, "onAutoClick: " + "x=" + autoTouchPoint.getX() + " y=" + autoTouchPoint.getY());
-            Path path = new Path();
-            float rand = new Random().nextFloat();
-            path.moveTo(autoTouchPoint.getX() + rand, autoTouchPoint.getY() + rand);
-            GestureDescription.Builder builder = new GestureDescription.Builder();
-            GestureDescription gestureDescription = builder.addStroke(
-                    new GestureDescription.StrokeDescription(path, 0, 100))
-                    .build();
-            dispatchGesture(gestureDescription, new AccessibilityService.GestureResultCallback() {
-                @Override
-                public void onCompleted(GestureDescription gestureDescription) {
-                    super.onCompleted(gestureDescription);
-                    Log.d("AutoTouchService", "滑动结束" + gestureDescription.getStrokeCount());
-                }
+    private void keyDownMethod(TouchPoint autoTouchPoint) {
+        Log.d(TAG, "onAutoClick: " + "x=" + autoTouchPoint.getX() + " y=" + autoTouchPoint.getY());
+        Path path = new Path();
+        float rand = new Random().nextFloat();
+        path.moveTo(autoTouchPoint.getX() + rand, autoTouchPoint.getY() + rand);
+        GestureDescription.Builder builder = new GestureDescription.Builder();
+        GestureDescription gestureDescription = builder.addStroke(
+                new GestureDescription.StrokeDescription(path, 0, 100))
+                .build();
+        dispatchGesture(gestureDescription, new AccessibilityService.GestureResultCallback() {
+            @Override
+            public void onCompleted(GestureDescription gestureDescription) {
+                super.onCompleted(gestureDescription);
+                Log.d("AutoTouchService", "滑动结束" + gestureDescription.getStrokeCount());
+            }
 
-                @Override
-                public void onCancelled(GestureDescription gestureDescription) {
-                    super.onCancelled(gestureDescription);
-                    Log.d("AutoTouchService", "滑动取消");
-                }
-            }, null);
-            onAutoClick();
-        }
-    };
+            @Override
+            public void onCancelled(GestureDescription gestureDescription) {
+                super.onCancelled(gestureDescription);
+                Log.d("AutoTouchService", "滑动取消");
+            }
+        }, null);
+    }
 
     private long getDelayTime() {
 //        int random = (int) (Math.random() * (30 - 1) + 1);
@@ -134,10 +170,12 @@ public class AutoTouchService extends AccessibilityService {
     }
 
     @Override
-    public void onAccessibilityEvent(AccessibilityEvent event) { }
+    public void onAccessibilityEvent(AccessibilityEvent event) {
+    }
 
     @Override
-    public void onInterrupt() { }
+    public void onInterrupt() {
+    }
 
     @Override
     public void onDestroy() {
@@ -161,14 +199,14 @@ public class AutoTouchService extends AccessibilityService {
                 int height = DensityUtil.dip2px(this, 40);
                 WindowManager.LayoutParams params = WindowUtils.newWmParams(width, height);
                 params.gravity = Gravity.START | Gravity.TOP;
-                params.x = autoTouchPoint.getX() - width/2;
+                params.x = autoTouchPoint.getX() - width / 2;
                 params.y = autoTouchPoint.getY() - width;
                 params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
                 windowManager.addView(tvTouchPoint, params);
             }
             //开启倒计时
             countDownTime = autoTouchPoint.getDelay();
-            if(touchViewRunnable == null) {
+            if (touchViewRunnable == null) {
                 touchViewRunnable = new Runnable() {
                     @Override
                     public void run() {
