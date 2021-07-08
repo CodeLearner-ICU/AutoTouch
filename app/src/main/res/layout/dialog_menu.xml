@@ -27,8 +27,8 @@
 
         <Button
             android:layout_marginStart="1dp"
-            android:textColor="#fff"
-            android:background="#666"
+            android:textColor="#f00"
+            android:background="#777"
             android:id="@+id/bt_add"
             android:textSize="15sp"
             android:text="添加触控点"
@@ -71,10 +71,29 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_marginStart="1dp"
+            android:textColor="#fff"
+            android:background="#666"
+            android:id="@+id/bt_list_start"
+            android:textSize="15sp"
+            android:text="按列表顺序点击（请先返回初始位置）"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp" />
+
+    </LinearLayout>
+
     <TextView
         android:layout_marginTop="10dp"
         android:textSize="18sp"
-        android:text="触控点列表（选择你要自动点击的条目）"
+        android:text="触控点列表（点击条目执行单个事件）"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

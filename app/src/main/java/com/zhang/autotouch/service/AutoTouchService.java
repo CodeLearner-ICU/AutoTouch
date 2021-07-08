@@ -29,6 +29,7 @@ import com.zhang.autotouch.utils.CopyPasteUtil;
 import com.zhang.autotouch.utils.DensityUtil;
 import com.zhang.autotouch.utils.KeyboardDownUtil;
 import com.zhang.autotouch.utils.LoopArrayList;
+import com.zhang.autotouch.utils.SpUtils;
 import com.zhang.autotouch.utils.WindowUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -36,6 +37,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -49,6 +51,7 @@ public class AutoTouchService extends AccessibilityService {
 
     private final String TAG = "AutoTouchService+++";
     private final List<TouchPoint> autoTouchPointList = new LoopArrayList<>();
+    private int index = 0;
     private final DecimalFormat floatDf = new DecimalFormat("#0.0");
     //自动点击事件
     private TouchPoint autoTouchPoint;
@@ -63,28 +66,27 @@ public class AutoTouchService extends AccessibilityService {
     private final Runnable autoTouchRunnable = new Runnable() {
         @Override
         public void run() {
+
+//            if (!TextUtils.isEmpty(autoTouchPoint.getText())) {
+//                AccessibilityNodeInfo nodeInfo
+//                        = AccessibilityNodeInfoUtil.getFocusAccessibilityNodeInfoButton(AutoTouchService.this, "发送");
+//                if (nodeInfo != null) {
+//                    CopyPasteUtil.pasteTextOnFocus(
+//                            AutoTouchService.this
+//                            , null
+//                            , autoTouchPoint.getText() == null ? "赞👍" : autoTouchPoint.getText()
+//                    );
+//                    Rect rect = new Rect();
+//                    nodeInfo.getBoundsInScreen(rect);
+//                    Log.d(TAG, "forceClick: " + rect.left + " " + rect.top + " " + rect.right + " " + rect.bottom);
+//                    int x = (rect.left + rect.right) / 2;
+//                    int y = (rect.top + rect.bottom) / 2;
+//                    keyDownMethod(new TouchPoint("发送", x, y, autoTouchPoint.getDelay()));
+//                } else {
+//                    KeyboardDownUtil.keyDown(KeyEvent.KEYCODE_ENTER);
+//                }
+//            }
             keyDownMethod(autoTouchPoint);
-
-            if (!TextUtils.isEmpty(autoTouchPoint.getText())) {
-                AccessibilityNodeInfo nodeInfo
-                        = AccessibilityNodeInfoUtil.getFocusAccessibilityNodeInfoButton(AutoTouchService.this, "发送");
-                if (nodeInfo != null) {
-                    CopyPasteUtil.pasteTextOnFocus(
-                            AutoTouchService.this
-                            , null
-                            , autoTouchPoint.getText() == null ? "赞👍" : autoTouchPoint.getText()
-                    );
-                    Rect rect = new Rect();
-                    nodeInfo.getBoundsInScreen(rect);
-                    Log.d(TAG, "forceClick: " + rect.left + " " + rect.top + " " + rect.right + " " + rect.bottom);
-                    int x = (rect.left + rect.right) / 2;
-                    int y = (rect.top + rect.bottom) / 2;
-                    keyDownMethod(new TouchPoint("发送", x, y, autoTouchPoint.getDelay()));
-                } else {
-                    KeyboardDownUtil.keyDown(KeyEvent.KEYCODE_ENTER);
-                }
-            }
-
             onAutoClick();
         }
     };
@@ -104,8 +106,16 @@ public class AutoTouchService extends AccessibilityService {
         handler.removeCallbacks(autoTouchRunnable);
         switch (event.getAction()) {
             case TouchEvent.ACTION_START:
-                autoTouchPoint = event.getTouchPoint();
-                autoTouchPointList.add(autoTouchPoint);
+                autoTouchPointList.clear();
+                if (event.getTouchPoint() == null) {
+                    autoTouchPointList.addAll(SpUtils.getTouchPoints(AutoTouchService.this));
+                    if (autoTouchPointList.size() == 0) {
+                        return;
+                    }
+                } else {
+                    autoTouchPointList.add(event.getTouchPoint());
+                }
+                index = 0;
                 onAutoClick();
                 break;
             case TouchEvent.ACTION_CONTINUE:
@@ -130,6 +140,7 @@ public class AutoTouchService extends AccessibilityService {
      * 执行自动点击
      */
     private void onAutoClick() {
+        autoTouchPoint = autoTouchPointList.get(index++);
         if (autoTouchPoint != null) {
             handler.postDelayed(autoTouchRunnable, getDelayTime());
             showTouchView();
@@ -228,7 +239,7 @@ public class AutoTouchService extends AccessibilityService {
     }
 
     private void removeTouchView() {
-        if (windowManager != null && tvTouchPoint.isAttachedToWindow()) {
+        if (windowManager != null && tvTouchPoint != null && tvTouchPoint.isAttachedToWindow()) {
             windowManager.removeView(tvTouchPoint);
         }
     }

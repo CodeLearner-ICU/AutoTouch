@@ -7,14 +7,19 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.zhang.autotouch.fw_permission.FloatWinPermissionCompat;
 import com.zhang.autotouch.service.AutoTouchService;
 import com.zhang.autotouch.service.FloatingService;
 import com.zhang.autotouch.utils.AccessibilityUtil;
 import com.zhang.autotouch.utils.ToastUtil;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 @SuppressLint("SetTextI18n")
@@ -58,6 +63,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         checkState();
+    }
+
+    private boolean isGuoQi() {
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+            Date date = formatter.parse("20211001");
+            return (date.getTime() - System.currentTimeMillis()) < 0;
+        }catch (Exception e){
+            e.printStackTrace();
+            return true;
+        }
     }
 
     private void checkState() {

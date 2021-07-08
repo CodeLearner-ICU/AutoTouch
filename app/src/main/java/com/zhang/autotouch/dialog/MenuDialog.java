@@ -62,6 +62,7 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
         findViewById(R.id.bt_add).setOnClickListener(this);
         findViewById(R.id.bt_clear).setOnClickListener(this);
         findViewById(R.id.bt_record).setOnClickListener(this);
+        findViewById(R.id.bt_list_start).setOnClickListener(this);
         btStop = findViewById(R.id.bt_stop);
         btStop.setOnClickListener(this);
         rvPoints = findViewById(R.id.rv);
@@ -137,6 +138,15 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
                 TouchEvent.postStopAction();
                 if (listener != null) {
                     listener.onExitService();
+                }
+                break;
+            case R.id.bt_list_start:
+                if (SpUtils.getTouchPoints(getContext()).size() > 0) {
+                    btStop.setVisibility(View.VISIBLE);
+                    dismiss();
+                    TouchEvent.postStartAction(null);
+                } else {
+                    ToastUtil.show("列表为空");
                 }
                 break;
             default:
