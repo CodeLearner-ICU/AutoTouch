@@ -1,18 +1,22 @@
 package com.zhang.autotouch;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.zhang.autotouch.activity.ScriptActivity;
 import com.zhang.autotouch.fw_permission.FloatWinPermissionCompat;
 import com.zhang.autotouch.service.AutoTouchService;
 import com.zhang.autotouch.service.FloatingService;
+import com.zhang.autotouch.service.GlobalTouchService;
 import com.zhang.autotouch.utils.AccessibilityUtil;
 import com.zhang.autotouch.utils.ToastUtil;
 
@@ -24,12 +28,14 @@ public class MainActivity extends AppCompatActivity {
     private final String STRING_START = "开始";
     private final String STRING_ACCESS = "无障碍服务";
     private final String STRING_ALERT = "悬浮窗权限";
-
+    private Button btn_script_add_view;
+    Intent globalService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        globalService = new Intent(this, GlobalTouchService.class);
         tvStart = findViewById(R.id.tv_start);
         tvStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,6 +57,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        btn_script_add_view = findViewById(R.id.btn_script_add_view);
+        btn_script_add_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ScriptActivity.class);
+                startActivity(intent);
+            }
+        });
+
         ToastUtil.init(this);
     }
 
@@ -109,5 +124,19 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .setNegativeButton("取消", null).show();
+    }
+
+    public void buttonClicked(View v){
+
+        if(v.getTag() == null){
+            startService(globalService);
+            v.setTag("on");
+            Toast.makeText(this, "Start Service", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            stopService(globalService);
+            v.setTag(null);
+            Toast.makeText(this, "Stop Service", Toast.LENGTH_SHORT).show();
+        }
     }
 }

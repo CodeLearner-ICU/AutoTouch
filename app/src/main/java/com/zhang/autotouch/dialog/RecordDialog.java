@@ -45,7 +45,18 @@ public class RecordDialog extends BaseServiceDialog {
         ibFloat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtil.show("开始录制");
+                if(v.getTag() == null){
+                    v.setTag("on");
+                    ToastUtil.show("开始录制");
+                    Log.d("开始录制","开始录制");
+                }
+                else{
+                    RecordDialog.this.hide();
+                    v.setTag(null);
+                    ToastUtil.show("结束录制");
+                    Log.d("结束录制","结束录制");
+                }
+
             }
         });
     }
