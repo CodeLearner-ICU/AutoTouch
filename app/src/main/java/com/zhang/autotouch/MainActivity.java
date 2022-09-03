@@ -20,6 +20,9 @@ import com.zhang.autotouch.service.GlobalTouchService;
 import com.zhang.autotouch.utils.AccessibilityUtil;
 import com.zhang.autotouch.utils.ToastUtil;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 @SuppressLint("SetTextI18n")
 public class MainActivity extends AppCompatActivity {
@@ -73,6 +76,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         checkState();
+    }
+
+    private boolean isGuoQi() {
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+            Date date = formatter.parse("20211001");
+            return (date.getTime() - System.currentTimeMillis()) < 0;
+        }catch (Exception e){
+            e.printStackTrace();
+            return true;
+        }
     }
 
     private void checkState() {

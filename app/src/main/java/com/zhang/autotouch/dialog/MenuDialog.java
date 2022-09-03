@@ -118,16 +118,21 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
                 dismiss();
                 break;
             case R.id.bt_record:
-                ToastUtil.show("有BUG暂不支持");
                 dismiss();
-                break;
-            case R.id.bt_clear:
-                onClick(btStop);
-                SpUtils.clear(getContext());
-                ToastUtil.show("已清空");
-
-                DialogUtils.dismiss(addPointDialog);
-                dismiss();
+                if (listener != null) {
+                    listener.onFloatWindowAttachChange(false);
+                    if (recordDialog ==null) {
+                        recordDialog = new RecordDialog(getContext());
+                        recordDialog.setOnDismissListener(new OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                listener.onFloatWindowAttachChange(true);
+                                MenuDialog.this.show();
+                            }
+                        });
+                        recordDialog.show();
+                    }
+                }
                 break;
             case R.id.bt_stop:
                 btStop.setVisibility(View.GONE);
