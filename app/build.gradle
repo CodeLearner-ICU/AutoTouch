@@ -8,7 +8,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 32
         versionCode 2
-        versionName "1.1"
+        versionName "1.4"
     }
     buildTypes {
         release {
@@ -16,6 +16,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.all {
+                //在这里修改apk文件名，引号内的字符串都可以随便定义
+                outputFileName = "自动点赞助手${variant.versionName}.apk"
+            }
+    }
+
 }
 
 dependencies {

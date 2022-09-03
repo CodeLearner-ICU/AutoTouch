@@ -22,6 +22,7 @@ import com.zhang.autotouch.utils.GsonUtils;
 import com.zhang.autotouch.utils.SpUtils;
 import com.zhang.autotouch.utils.ToastUtil;
 
+import java.util.Collections;
 import java.util.List;
 
 public class MenuDialog extends BaseServiceDialog implements View.OnClickListener {
@@ -36,6 +37,7 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
 
     public MenuDialog(@NonNull Context context) {
         super(context);
+        ToastUtil.init(context);
     }
 
     @Override
@@ -58,7 +60,9 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
         setCanceledOnTouchOutside(true);
         findViewById(R.id.bt_exit).setOnClickListener(this);
         findViewById(R.id.bt_add).setOnClickListener(this);
+        findViewById(R.id.bt_clear).setOnClickListener(this);
         findViewById(R.id.bt_record).setOnClickListener(this);
+        findViewById(R.id.bt_list_start).setOnClickListener(this);
         btStop = findViewById(R.id.bt_stop);
         btStop.setOnClickListener(this);
         rvPoints = findViewById(R.id.rv);
@@ -89,9 +93,10 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
         super.onStart();
         Log.d("啊实打实", "onStart");
         //如果正在触控，则暂停
-        TouchEvent.postPauseAction();
+        onClick(btStop);
         if (touchPointAdapter != null) {
             List<TouchPoint> touchPoints = SpUtils.getTouchPoints(getContext());
+            Collections.reverse(touchPoints);
             Log.d("啊实打实", GsonUtils.beanToJson(touchPoints));
             touchPointAdapter.setTouchPointList(touchPoints);
         }
@@ -113,21 +118,16 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
                 dismiss();
                 break;
             case R.id.bt_record:
+                ToastUtil.show("有BUG暂不支持");
                 dismiss();
-                if (listener != null) {
-                    listener.onFloatWindowAttachChange(false);
-                    if (recordDialog ==null) {
-                        recordDialog = new RecordDialog(getContext());
-                        recordDialog.setOnDismissListener(new OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                listener.onFloatWindowAttachChange(true);
-                                MenuDialog.this.show();
-                            }
-                        });
-                        recordDialog.show();
-                    }
-                }
+                break;
+            case R.id.bt_clear:
+                onClick(btStop);
+                SpUtils.clear(getContext());
+                ToastUtil.show("已清空");
+
+                DialogUtils.dismiss(addPointDialog);
+                dismiss();
                 break;
             case R.id.bt_stop:
                 btStop.setVisibility(View.GONE);
@@ -139,6 +139,17 @@ public class MenuDialog extends BaseServiceDialog implements View.OnClickListene
                 if (listener != null) {
                     listener.onExitService();
                 }
+                break;
+            case R.id.bt_list_start:
+                if (SpUtils.getTouchPoints(getContext()).size() > 0) {
+                    btStop.setVisibility(View.VISIBLE);
+                    dismiss();
+                    TouchEvent.postStartAction(null);
+                } else {
+                    ToastUtil.show("列表为空");
+                }
+                break;
+            default:
                 break;
 
         }

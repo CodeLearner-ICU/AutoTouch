@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -12,11 +13,14 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.zhang.autotouch.R;
+import com.zhang.autotouch.bean.TouchEvent;
 import com.zhang.autotouch.dialog.MenuDialog;
+import com.zhang.autotouch.listener.ScreenListener;
 import com.zhang.autotouch.utils.DensityUtil;
+import com.zhang.autotouch.utils.ToastUtil;
 import com.zhang.autotouch.utils.WindowUtils;
 
-/**
+/**A
  * 悬浮窗
  */
 public class FloatingService extends Service {
@@ -24,6 +28,7 @@ public class FloatingService extends Service {
     private View mFloatingView;
     private MenuDialog menuDialog;
     private WindowManager.LayoutParams floatLayoutParams;
+    private ScreenListener screenListener;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -46,11 +51,12 @@ public class FloatingService extends Service {
         addViewToWindow(mFloatingView, floatLayoutParams);
         //FloatingView的拖动事件
         mFloatingView.setClickable(true);
-                mFloatingView.setOnTouchListener(new View.OnTouchListener() {
+        mFloatingView.setOnTouchListener(new View.OnTouchListener() {
             private int x;
             private int y;
             //是否在移动
             private boolean isMoving;
+
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -86,7 +92,43 @@ public class FloatingService extends Service {
                 return false;
             }
         });
+        initView();
+        initLiatener();
+
     }
+
+    private void initView() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                onShowSelectDialog();
+            }
+        }, 800);
+    }
+
+    private void initLiatener() {
+        screenListener = new ScreenListener(this);
+        screenListener.begin(new ScreenListener.ScreenStateListener() {
+            @Override
+            public void onScreenOn() {
+                //Toast.makeText( MainActivity.this , "屏幕打开了" , Toast.LENGTH_SHORT ).show();
+            }
+
+            @Override
+            public void onScreenOff() {
+                //Toast.makeText( MainActivity.this , "屏幕关闭了" , Toast.LENGTH_SHORT ).show();
+                TouchEvent.postStopAction();
+                ToastUtil.show("已停止触控");
+            }
+
+            @Override
+            public void onUserPresent() {
+                //Toast.makeText( MainActivity.this , "解锁了" , Toast.LENGTH_SHORT ).show();
+            }
+        });
+
+    }
+
 
     @SuppressLint("ClickableViewAccessibility")
     private void onShowSelectDialog() {
@@ -118,6 +160,7 @@ public class FloatingService extends Service {
         super.onDestroy();
         removeViewFromWinddow(mFloatingView);
         hideDialog(menuDialog);
+        if (screenListener != null) screenListener.unregisterListener();
     }
 
     private void hideDialog(Dialog dialog) {
